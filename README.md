@@ -1,2 +1,2 @@
 # band.api
-A Django-based API
+A Flask-based Python API
