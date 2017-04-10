@@ -5,4 +5,5 @@ Playground, testing & learning environment to get to know the basics of Python a
 ## Basics
 * Pip3
 * Python3 @3.6.1
+* Flask
 * Repository follows basic gitflow
