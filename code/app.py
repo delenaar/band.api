@@ -1,59 +1,39 @@
-from flask import Flask, request
-from flask_restful import Resource, Api, reqparse
-from flask_jwt import JWT, jwt_required
+from flask import Flask
+from flask_restful import  Api
+from flask_jwt import JWT
+
 from security import authenticate, identify
-from user import UserRegister
+from resources.user import UserRegister
+from resources.band import Band, Bands
+import os
+# SETUP DATABASE WITH SQLALCHEMY
+
+# SETUP APP
 app = Flask(__name__)
-app.secret_key = 'jose'
+app.secret_key = 'jose' # LATER PLACED IN CONFIG
 api = Api(app)
 
+# JSON WEBTOKENS
 jwt = JWT(app,authenticate,identify) #/auth
 
-bands = [
-
-]
-
-
-class Band(Resource):
-    parser = reqparse.RequestParser()
-    parser.add_argument('location',
-        type=str,
-        required=True,
-        help='The field location is required'
-    )
-
-    @jwt_required()
-    def get(self,name):
-        band = next(filter(lambda x: x['name'] == name, bands), None)
-        return {'band' : band},200 if band else 404
-    def post(self,name):
-        if (next(filter(lambda x: x['name'] == name, bands), None) ):
-            return {'message' : 'item with name "{}" already exists'.format(name)}, 400
-        data = Band.parser.parse_args()
-        band = {'name' : name, 'location' : data['location']}
-        bands.append(band)
-        return band, 201
-    def delete(self,name):
-        global bands
-        bands = list(filter(lambda x: x['name'] != name, bands), None)
-        return {'message' : 'Band deleted'}
-    def put(self,name):
-        band = next(filter(lambda x:x['name'] == name, bands), None)
-        data = Band.parser.parse_args()
-        if band is None:
-            band = {'name' : name}
-            bands.append(band)
-        else:
-            band.update(data)
-        return band
+# CREATE TABLES IF NOT EXIST
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
 
-
-class Bands(Resource):
-    def get(self):
-        return {'bands' : bands}
-
+# API RESOURCES
 api.add_resource(Band, '/band/<string:name>')
 api.add_resource(Bands, '/bands')
 api.add_resource(UserRegister, '/register')
+
+app.config.from_object(os.environ["APP_SETTINGS"])
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# print(os.environ['APP_SETTINGS'])
+
+if __name__ == '__main__':
+    from db import db
+    db.init_app(app)
+# START OUR APP
 app.run(port=8000, debug=True)
