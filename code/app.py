@@ -4,7 +4,8 @@ from flask_jwt import JWT
 
 from security import authenticate, identify
 from resources.user import UserRegister
-from resources.band import Band, Bands
+from resources.artist import Artist, Artists
+from resources.events import Event,Events
 import os
 # SETUP DATABASE WITH SQLALCHEMY
 
@@ -23,8 +24,10 @@ def create_tables():
 
 
 # API RESOURCES
-api.add_resource(Band, '/band/<string:name>')
-api.add_resource(Bands, '/bands')
+api.add_resource(Artist, '/artist/<string:name>')
+api.add_resource(Artists, '/artists')
+api.add_resource(Event, '/event/<string:name>')
+api.add_resource(Events, '/events')
 api.add_resource(UserRegister, '/register')
 
 app.config.from_object(os.environ["APP_SETTINGS"])

@@ -1,19 +1,18 @@
 import psycopg2
 from db import db
-class BandModel(db.Model):
-    __tablename__ = 'bands'
+class ArtistModel(db.Model):
+    __tablename__ = 'artists'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(80))
-    location = db.Column(db.String(80))
-    def __init__(self,name,location):
+
+    def __init__(self,name):
         self.name = name
-        self.location = location
     def json(self):
-        return {'name': self.name, 'location': self.location}
+        return {'name': self.name}
 
     @classmethod
     def find_by_name(cls,name):
-        return BandModel.query.filter_by(name=name).first()
+        return ArtistModel.query.filter_by(name=name).first()
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
