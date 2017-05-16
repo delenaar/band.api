@@ -12,9 +12,10 @@ class Artist(Resource):
         return {'message' : 'Not found'}, 404
     def post(self,name):
         data = Artist.parser.parse_args()
-        band = ArtistModel(name)
+        # print(name)
         if ArtistModel.find_by_name(name):
             return {'message': 'Band already exists'}
+        band = ArtistModel(name)
         try:
             band.save_to_db()
             return {'message' : 'Band created'}

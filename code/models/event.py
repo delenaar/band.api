@@ -1,27 +1,25 @@
 import psycopg2
 from db import db
-
-map_table = db.Table('events_map',
-    db.Column('event_id', db.Integer, db.ForeignKey('events.id'), primary_key=True),
-    db.Column('artist_id', db.Integer, db.ForeignKey('artists.id'), primary_key=True)
-)
+from models.artist_event import ArtistEventModel
 
 class EventModel(db.Model):
     __tablename__ = 'events'
+
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(80))
-    location = db.Column(db.String(80))
-    artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'))
+    date = db.Column(db.String(80))
+    # location_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
+    artists = db.relationship('ArtistModel', secondary='artist_event', backref=db.backref('artists', lazy = 'dynamic'))
 
-    artists = db.relationship('ArtistModel', secondary=map_table, backref=db.backref('events'))
-
-    def __init__(self,name,location, artist_id):
+    def __init__(self,name,date):
         self.name = name
-        self.location = location
-        self.artist_id = artist_id
+        self.date = date
 
     def json(self):
-        return {'name': self.name, 'location' : self.location, 'artists': EventModel.query.filter(EventModel.id == self.artist_id)}
+        return {
+            'name': self.name,
+            'date': self.date
+        }
 
     @classmethod
     def find_by_name(cls,name):
