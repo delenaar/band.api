@@ -14,22 +14,22 @@ class Event(Resource):
     parser.add_argument('artists', action='append')
     def get(self,name):
         event = EventModel.find_by_name(name)
-        print(event.id)
+        pprint(vars(event))
         # artists = EventModel.query.all()
         # artists = inspect(EventModel).relationships
 
-        artist = db.relationship(ArtistModel)
-        # print(artist)
+        # artist = db.relationship('Artist')
 
-
-        for a in artist:
-            pprint (a)
+        # pprint(event.artists)
+        # pprint(event.relationships)
+        # for a in artist:
+        #     pprint (a)
         # artists = ArtistEventModel.query.filter(ArtistEventModel.event_id = event.id).all()
         # # print(EventModel)
         # for artist in artists:
         #     pprint (artist)
 
-        # artistsList = list()
+        artistsList = list()
         # for artist in artists:
         #     # print()
         #     artistsList.append(jsonify(artist.ajson()))
@@ -38,7 +38,13 @@ class Event(Resource):
         # artists = list(map(lambda x: x.json(), EventModel.query.all()))
         # print(artists)
         if event:
-            return event.json()
+            if event.artists:
+                for artist in event.artists:
+                    artistsList.append(artist.serialize())
+
+            pprint(artistsList)
+            event.artists = artistsList
+            return event.serialize()
         return {"message": 'Event not found'}, 400
 
     def post(self,name):

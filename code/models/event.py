@@ -9,10 +9,10 @@ class EventModel(db.Model):
     name = db.Column(db.String(80))
     date = db.Column(db.String(80))
     # location_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
-    artists = db.relationship('EventModel',
+    artists = db.relationship('ArtistModel',
         secondary='artist_event',
-        primaryjoin=(ArtistEventModel.event_id == id),
-        backref=db.backref('artist_event', lazy = 'dynamic'))
+        # primaryjoin=('artist_event.event_id' == id),
+        backref=db.backref('events'))
 
     def __init__(self,name,date):
         self.name = name
@@ -25,7 +25,7 @@ class EventModel(db.Model):
         return {
             'name': self.name,
             'date': self.date,
-            # 'artists' : self.artists
+            'artists' : self.artists
         }
 
 
@@ -41,4 +41,6 @@ class EventModel(db.Model):
     def serialize(self):
         return {
             'name': self.name,
+            'date': self.date,
+            'artists': self.artists
         }

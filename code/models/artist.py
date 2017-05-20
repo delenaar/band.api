@@ -4,7 +4,7 @@ class ArtistModel(db.Model):
     __tablename__ = 'artists'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(80))
-    events = db.relationship('EventModel', secondary='artist_event', backref=db.backref('events', lazy = 'dynamic'))
+    # events = db.relationship('EventModel', secondary='artist_event', backref=db.backref('artists'));
 
     def __init__(self,name):
         self.name = name
@@ -24,3 +24,7 @@ class ArtistModel(db.Model):
     def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()
+    def serialize(self):
+        return {
+            'name': self.name,
+        }
