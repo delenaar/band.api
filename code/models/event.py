@@ -12,20 +12,15 @@ class EventModel(db.Model):
     artists = db.relationship('ArtistModel',
         secondary='artist_event',
         # primaryjoin=('artist_event.event_id' == id),
-        backref=db.backref('events'))
+        backref=db.backref('event_artists'), lazy = 'dynamic')
 
     def __init__(self,name,date):
         self.name = name
         self.date = date
-    def ajson(self):
-        return{
-            'name': self.name,
-        }
     def json(self):
         return {
             'name': self.name,
             'date': self.date,
-            'artists' : self.artists
         }
 
 
@@ -38,9 +33,3 @@ class EventModel(db.Model):
     def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()
-    def serialize(self):
-        return {
-            'name': self.name,
-            'date': self.date,
-            'artists': self.artists
-        }

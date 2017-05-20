@@ -1,13 +1,22 @@
 from flask_restful import Resource, reqparse
 from flask_jwt import jwt_required
 from models.artist import ArtistModel
+from pprint import pprint
+from sqlalchemy.inspection import inspect
 class Artist(Resource):
     parser = reqparse.RequestParser()
 
     # @jwt_required()
     def get(self,name):
         band = ArtistModel.find_by_name(name)
+        band.events = []
+        # pprint(vars(band.event))
         if band:
+            if band.event:
+                print('test')
+                for event in band.event:
+                    pprint(vars(event))
+                    band.events.append(event.json())
             return band.json()
         return {'message' : 'Not found'}, 404
     def post(self,name):

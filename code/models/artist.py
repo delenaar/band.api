@@ -4,13 +4,18 @@ class ArtistModel(db.Model):
     __tablename__ = 'artists'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(80))
-    # events = db.relationship('EventModel', secondary='artist_event', backref=db.backref('artists'));
+    event = db.relationship('EventModel',
+        secondary='artist_event',
+        # primaryjoin=('artist_event.event_id' == id),
+        backref=db.backref('artist_events'), lazy = 'dynamic')
+
 
     def __init__(self,name):
         self.name = name
     def json(self):
         return {
-            'name': self.name
+            'name': self.name,
+            'events': self.events
         }
 
     @classmethod
