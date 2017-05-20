@@ -1,6 +1,12 @@
 from flask_restful import Resource, reqparse
 from models.event import EventModel
 from models.artist import ArtistModel
+from models.artist_event import ArtistEventModel
+from db import db
+from flask import jsonify
+from pprint import pprint
+from sqlalchemy.inspection import inspect
+
 
 class Event(Resource):
     parser = reqparse.RequestParser()
@@ -8,7 +14,29 @@ class Event(Resource):
     parser.add_argument('artists', action='append')
     def get(self,name):
         event = EventModel.find_by_name(name)
-        print(EventModel.query.filter(EventModel.artists.any(event_id=event.id)))
+        print(event.id)
+        # artists = EventModel.query.all()
+        # artists = inspect(EventModel).relationships
+
+        artist = db.relationship(ArtistModel)
+        # print(artist)
+
+
+        for a in artist:
+            pprint (a)
+        # artists = ArtistEventModel.query.filter(ArtistEventModel.event_id = event.id).all()
+        # # print(EventModel)
+        # for artist in artists:
+        #     pprint (artist)
+
+        # artistsList = list()
+        # for artist in artists:
+        #     # print()
+        #     artistsList.append(jsonify(artist.ajson()))
+        # print(artistsList)
+        # event.artists = artistsList
+        # artists = list(map(lambda x: x.json(), EventModel.query.all()))
+        # print(artists)
         if event:
             return event.json()
         return {"message": 'Event not found'}, 400
@@ -38,7 +66,6 @@ class Event(Resource):
             return {'message' : 'Event does not exist'}
         data = Event.parser.parse_args()
         event.date = data['date']
-        print(data)
         if data['artists']:
             for artist_id in data['artists']:
                 artist = ArtistModel.find_by_id(artist_id)
