@@ -4,20 +4,14 @@ class ArtistModel(db.Model):
     __tablename__ = 'artists'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(80))
-    event = db.relationship('EventModel',
+    events = db.relationship('EventModel',
         secondary='artist_event',
-        # primaryjoin=('artist_event.event_id' == id),
         backref=db.backref('artist_events'), lazy = 'dynamic')
 
-
-    def __init__(self,name):
-        self.name = name
-    def json(self):
-        return {
-            'name': self.name,
-            'events': self.events
-        }
-
+    # 
+    # def __init__(self,name,events):
+    #     self.name = name
+    #     self.events = events
     @classmethod
     def find_by_name(cls,name):
         return ArtistModel.query.filter_by(name=name).first()
@@ -29,7 +23,3 @@ class ArtistModel(db.Model):
     def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()
-    def serialize(self):
-        return {
-            'name': self.name,
-        }

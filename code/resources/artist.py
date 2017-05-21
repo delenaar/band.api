@@ -1,23 +1,19 @@
 from flask_restful import Resource, reqparse
 from flask_jwt import jwt_required
+from flask import jsonify
 from models.artist import ArtistModel
 from pprint import pprint
-from sqlalchemy.inspection import inspect
+from helpers import json
 class Artist(Resource):
     parser = reqparse.RequestParser()
 
     # @jwt_required()
     def get(self,name):
         band = ArtistModel.find_by_name(name)
-        band.events = []
-        # pprint(vars(band.event))
         if band:
-            if band.event:
-                print('test')
-                for event in band.event:
-                    pprint(vars(event))
-                    band.events.append(event.json())
-            return band.json()
+            res = json(band)
+            res['events'] = list(map(lambda x : json(x), band.events))
+            return res
         return {'message' : 'Not found'}, 404
     def post(self,name):
         data = Artist.parser.parse_args()
@@ -47,4 +43,5 @@ class Artist(Resource):
 
 class Artists(Resource):
     def get(self):
-        return {'bands' : list(map(lambda x: x.json(), ArtistModel.query.all()))}
+        artists = ArtistModel.query.all()
+        return {'artists' : list(map(lambda x: json(x), ArtistModel.query.all()))}

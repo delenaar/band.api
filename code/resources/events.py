@@ -1,28 +1,27 @@
 from flask_restful import Resource, reqparse
+from flask import jsonify
 from models.event import EventModel
 from models.artist import ArtistModel
 from models.artist_event import ArtistEventModel
+from models.location import LocationModel
 from db import db
-from flask import jsonify
+from helpers import json
 from pprint import pprint
-from sqlalchemy.inspection import inspect
+# import json
 
 
 class Event(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('date', type=str)
+    parser.add_argument('location_id', type=int)
     parser.add_argument('artists', action='append')
     def get(self,name):
         event = EventModel.find_by_name(name)
-        artistsList = []
-
         if event:
-            if event.artists:
-                for artist in event.artists:
-                    pprint(event.json())
-                    artistsList.append(event.json())
-            event.artist = artistsList
-            return event
+            res = json(event)
+            res['location'] = json(event.location)
+            res['artists'] = list(map(lambda x: json(x), event.artists))
+            return res
         return {"message": 'Event not found'}, 400
 
     def post(self,name):
@@ -31,8 +30,11 @@ class Event(Resource):
         if EventModel.find_by_name(name):
             return {'message': 'Event {} already exists'.format(name)}, 400
 
-        event = EventModel(name, data['date'])
-
+        event = EventModel()
+        event.name = name
+        event.date = data['date']
+        event.location_id = data['location_id']
+        event.artists = []
         if data['artists']:
             for artist_id in data['artists']:
                 artist = ArtistModel.find_by_id(artist_id)
@@ -43,13 +45,16 @@ class Event(Resource):
         except:
             return {'message': "Something went wrong"}, 500
 
-        return event.json(),201
+        return json(event),201
     def put(self,name):
         event = EventModel.find_by_name(name)
         if event is None:
             return {'message' : 'Event does not exist'}
+
         data = Event.parser.parse_args()
         event.date = data['date']
+        event.location_id = data['location_id']
+
         if data['artists']:
             for artist_id in data['artists']:
                 artist = ArtistModel.find_by_id(artist_id)
@@ -68,4 +73,7 @@ class Event(Resource):
 
 class Events(Resource):
     def get(self):
-        return {'events' : list(map(lambda x: x.json(), EventModel.query.all()))}
+        events = EventModel.query.all()
+        if events:
+            return [ event.json() for event in events ]
+        return {'result' : 'nothing found'}
