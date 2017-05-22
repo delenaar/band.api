@@ -7,7 +7,6 @@ from models.location import LocationModel
 from db import db
 from helpers import json
 from pprint import pprint
-# import json
 
 
 class Event(Resource):
@@ -44,8 +43,7 @@ class Event(Resource):
             event.save_to_db()
         except:
             return {'message': "Something went wrong"}, 500
-
-        return json(event),201
+        return {'message' : 'Event saved'},201
     def put(self,name):
         event = EventModel.find_by_name(name)
         if event is None:
@@ -75,5 +73,12 @@ class Events(Resource):
     def get(self):
         events = EventModel.query.all()
         if events:
-            return [ event.json() for event in events ]
+            result = []
+            for event in events:
+                res = event.json()
+                res['location'] = json(event.location)
+                res['artists'] = list(map(lambda x: json(x), event.artists))
+                pprint(res)
+                result.append(res)
+            return result
         return {'result' : 'nothing found'}

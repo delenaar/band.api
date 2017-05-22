@@ -1,6 +1,7 @@
 import psycopg2
 from db import db
 from helpers import json
+# from models.location import LocationModel
 class EventModel(db.Model):
     __tablename__ = 'events'
 
@@ -11,7 +12,7 @@ class EventModel(db.Model):
     location = db.relationship("LocationModel")
     artists = db.relationship('ArtistModel',
         secondary='artist_event',
-        # primaryjoin=('artist_event.event_id' == id),
+        # primaryjoin= (LocationModel.id == location_id),
         backref=db.backref('event_artists'), lazy = 'dynamic')
 
     # def __init__(self):
@@ -19,12 +20,12 @@ class EventModel(db.Model):
     #     self.date = date
         # self.location = location
         # self.artists = artists
+
     def json(self):
         return {
             'name' : self.name,
             'date' : self.date,
-            'location' : json(self.location),
-            'artists' : list(map(lambda x: json(x), self.artists))
+            'location' : json(self.location)
         }
     @classmethod
     def find_by_name(cls,name):

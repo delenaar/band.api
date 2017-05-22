@@ -12,7 +12,7 @@ class Artist(Resource):
         band = ArtistModel.find_by_name(name)
         if band:
             res = json(band)
-            res['events'] = list(map(lambda x : json(x), band.events))
+            res['events'] = list(map(lambda x : x.json(), band.events))
             return res
         return {'message' : 'Not found'}, 404
     def post(self,name):
@@ -44,4 +44,10 @@ class Artist(Resource):
 class Artists(Resource):
     def get(self):
         artists = ArtistModel.query.all()
-        return {'artists' : list(map(lambda x: json(x), ArtistModel.query.all()))}
+        if artists:
+            result = []
+            for artist in artists:
+                res = json(artist)
+                res['events'] = list(map(lambda x: x.json(), artist.events))
+                result.append(res)
+            return result
