@@ -15,11 +15,6 @@ class EventModel(db.Model):
         # primaryjoin= (LocationModel.id == location_id),
         backref=db.backref('event_artists'), lazy = 'dynamic')
 
-    # def __init__(self):
-    #     self.name = name
-    #     self.date = date
-        # self.location = location
-        # self.artists = artists
 
     def json(self):
         return {

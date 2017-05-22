@@ -31,8 +31,10 @@ class Event(Resource):
 
         event = EventModel()
         event.name = name
-        event.date = data['date']
-        event.location_id = data['location_id']
+        data = Event.parser.parse_args()
+        for key,value in data.items():
+            if(type(value) != list):
+                setattr(event, key, value)
         event.artists = []
         if data['artists']:
             for artist_id in data['artists']:

@@ -8,10 +8,7 @@ class ArtistModel(db.Model):
         secondary='artist_event',
         backref=db.backref('artist_events'), lazy = 'dynamic')
 
-    # 
-    # def __init__(self,name,events):
-    #     self.name = name
-    #     self.events = events
+
     @classmethod
     def find_by_name(cls,name):
         return ArtistModel.query.filter_by(name=name).first()
